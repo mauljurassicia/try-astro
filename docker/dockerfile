@@ -1,0 +1,36 @@
+FROM node:22-bullseye
+
+RUN apt-get update && \
+    apt-get install -y \
+    git \
+    curl \
+    sudo \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m developer && \
+    usermod -aG sudo developer && \
+    echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+WORKDIR /home/developer/astro-blog-portofolio
+
+# Copy package.json and package-lock.json first
+COPY package*.json ./
+    
+# Install dependencies
+RUN npm install
+    
+# Copy the rest of the application
+COPY . .
+    
+# Change ownership of all files to developer
+RUN chown -R developer:developer /home/developer/astro-blog-portofolio
+    
+USER developer
+
+EXPOSE 4321
+
+CMD [ "npm", "run", "dev", "--", "--host", "0.0.0.0" ]
+
+
+
+
